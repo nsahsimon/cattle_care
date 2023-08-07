@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:cattle_care/ml_service.dart';
-import 'package:cattle_care/ocr.dart';
 import 'package:cattle_care/report_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -229,14 +228,6 @@ class _HomeScreenState extends State<HomeScreen> {
     debugPrint("Closing tflite object");
   }
 
-  Future getEarTagNumber(File image) async {
-    String? recognizedTextTemp = await performTextRecognition(image);
-    if(recognizedText != null) recognizedTextTemp = recognizedTextTemp!.replaceAll('\n', "");
-    setState(() {
-      recognizedText = recognizedTextTemp;
-    });
-  }
-
   List<Widget> renderBoxes(Size container) {
         if (_recognitions == null) return [];
         if (_imageHeight == null || _imageWidth == null) return [];
@@ -339,8 +330,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     await detectMuzzle(File(pickedImage!.path));
                     debugPrint("Predicting health...");
                     await predictHealth(File(pickedImage!.path));
-                    debugPrint("Performing text recognition...");
-                    await getEarTagNumber(File(pickedImage!.path));
                   }
                   debugPrint("Please select an image first");
                 },),
