@@ -15,3 +15,6 @@ to:
 
 ## Problem 2: If complaining about the minimum SDK version,
 solution: Change the minSDK version in android/app/build.gradle to 21
+
+## Problem 3: Incompatibility with firebase_ml_vision
+solution: Use google_mlkit_text_recognition package instead.

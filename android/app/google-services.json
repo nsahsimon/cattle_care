@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1080681105639",
+    "project_id": "cattlecare",
+    "storage_bucket": "cattlecare.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1080681105639:android:7aae14cc9baf685985fa42",
+        "android_client_info": {
+          "package_name": "com.example.cattle_care"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1080681105639-ud9littt4h2dpt0g87adckv8d5uqvq19.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbdULoD6J0ra888WTLd5RI7BEsrhFA-i4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1080681105639-ud9littt4h2dpt0g87adckv8d5uqvq19.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

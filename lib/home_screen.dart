@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:cattle_care/ml_service.dart';
+import 'package:cattle_care/ocr.dart';
 import 'package:cattle_care/report_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -44,11 +45,11 @@ class _HomeScreenState extends State<HomeScreen> {
   List? _recognitions;
   double? _imageHeight;
   double? _imageWidth;
-  bool _busy = false;
   List<Widget> boxes = [];
   bool isLoading = false;
   Rect? cropRoi;
   String? prediction;
+  String? recognizedText;
   double? confidence;
   var rel_tlx;
   var rel_tly;
@@ -101,6 +102,28 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void takePhoto() async{
+    final ImagePicker _picker = ImagePicker();
+
+    try {
+      XFile? pickedImageTemp = await _picker.pickImage(source: ImageSource.camera);
+      setState(() {
+        pickedImage = pickedImageTemp;
+        boxes = [];
+        prediction = null;
+        confidence = null;
+      });
+    } catch (e) {
+      debugPrint('Error selecting image: $e');
+    }
+
+    // if (pickedImage != null) {
+    //   return File(pickedImage!.path);
+    // } else {
+    //   return null;
+    // }
+  }
+
   Future<File?> cropImage(File imageFile, int x, int y, int width, int height) async {
     try {
       // Read the image file bytes.
@@ -126,14 +149,6 @@ class _HomeScreenState extends State<HomeScreen> {
       debugPrint('Error cropping image: $e');
       return null;
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    Future(()async{
-
-    });
   }
 
   Future detectMuzzle(File image) async {
@@ -185,7 +200,6 @@ class _HomeScreenState extends State<HomeScreen> {
       debugPrint("tflite object succefully closed");
     }
 
-
   Future predictHealth(File image) async {
 
 
@@ -213,6 +227,14 @@ class _HomeScreenState extends State<HomeScreen> {
     debugPrint("Prediction: $prediction, Confidence: $confidence");
     debugPrint("keys: ${output.keys}, detectedClass: ${output['detectedClass']}");
     debugPrint("Closing tflite object");
+  }
+
+  Future getEarTagNumber(File image) async {
+    String? recognizedTextTemp = await performTextRecognition(image);
+    if(recognizedText != null) recognizedTextTemp = recognizedTextTemp!.replaceAll('\n', "");
+    setState(() {
+      recognizedText = recognizedTextTemp;
+    });
   }
 
   List<Widget> renderBoxes(Size container) {
@@ -301,9 +323,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 SizedBox(height: 20),
-                Visibility(
-                  visible: prediction != null && confidence != null,
-                    child: Text("Prediction: $prediction, Confidence: $confidence", style: TextStyle(fontWeight: FontWeight.bold))),
+                prediction == null || confidence == null ? Container(child:null) : Text("Tag number: $recognizedText, \nPrediction: $prediction, \vConfidence: ${confidence!.toStringAsFixed(2)}", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)),
+                // C(
+                //   visible: prediction != null && confidence != null,
+                //     child: Text("Tag number: $recognizedText, Prediction: $prediction, Confidence: ${confidence!.toStringAsFixed(2)}", style: TextStyle(fontWeight: FontWeight.bold))),
+                RoundedButton(text: 'Take photo', color: Colors.red, onPressed: () {
+                  takePhoto();
+                },),
                 RoundedButton(text: 'Choose Image', color: Colors.red, onPressed: () {
                   getImageFromGallery();
                 },),
@@ -313,6 +339,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     await detectMuzzle(File(pickedImage!.path));
                     debugPrint("Predicting health...");
                     await predictHealth(File(pickedImage!.path));
+                    debugPrint("Performing text recognition...");
+                    await getEarTagNumber(File(pickedImage!.path));
                   }
                   debugPrint("Please select an image first");
                 },),

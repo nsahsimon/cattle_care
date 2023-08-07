@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>1080681105639-5ntnn4a9lfk04al2pagh6u5la71kpmk8.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.1080681105639-5ntnn4a9lfk04al2pagh6u5la71kpmk8</string>
+	<key>API_KEY</key>
+	<string>AIzaSyD-hCOV2OfxcpCgMBmNDRwYIBV551uAURI</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1080681105639</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.cattleCare</string>
+	<key>PROJECT_ID</key>
+	<string>cattlecare</string>
+	<key>STORAGE_BUCKET</key>
+	<string>cattlecare.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1080681105639:ios:feaf4e7eb60b18f885fa42</string>
+</dict>
+</plist>
