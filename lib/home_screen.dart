@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:cattle_care/data.dart';
 import 'package:cattle_care/ml_service.dart';
 import 'package:cattle_care/ocr.dart';
 import 'package:cattle_care/report_screen.dart';
@@ -45,12 +46,15 @@ class _HomeScreenState extends State<HomeScreen> {
   List? _recognitions;
   double? _imageHeight;
   double? _imageWidth;
+  bool busy = false;
   List<Widget> boxes = [];
   bool isLoading = false;
   Rect? cropRoi;
   String? prediction;
   String? recognizedText;
   double? confidence;
+  double imgFrameHeight = 0.0;
+  double imgFrameWidth = 0.0;
   var rel_tlx;
   var rel_tly;
   var rel_width;
@@ -68,17 +72,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  double imgFrameHeight = 0.0;
-  double imgFrameWidth = 0.0;
-
-  List<Map<String, String>> myReportData = [
-    {'tag_number': '12345', 'status' : 'unhealthy'},
-    {'tag_number': '12346', 'status' : 'healthy'},
-    {'tag_number': '12347', 'status' : 'unhealthy'},
-    {'tag_number': '12348', 'status' : 'unhealthy'},
-    {'tag_number': '12349', 'status' : 'healthy'},
-    {'tag_number': '12340', 'status' : 'unhealthy'},
-    {'tag_number': '12341', 'status' : 'healthy'},];
 
   Future<File?> getImageFromGallery() async {
     final ImagePicker _picker = ImagePicker();
@@ -231,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future getEarTagNumber(File image) async {
     String? recognizedTextTemp = await performTextRecognition(image);
-    if(recognizedText != null) recognizedTextTemp = recognizedTextTemp!.replaceAll('\n', "");
+    if(recognizedText != null) recognizedTextTemp = recognizedTextTemp!.replaceAll('\n', "").replaceAll('\r', "");
     setState(() {
       recognizedText = recognizedTextTemp;
     });
@@ -335,12 +328,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 },),
                 RoundedButton(text: 'Predict', color: Colors.red, onPressed: () async{
                   if(pickedImage != null) {
-                    debugPrint("Detecting muzzle...");
-                    await detectMuzzle(File(pickedImage!.path));
-                    debugPrint("Predicting health...");
-                    await predictHealth(File(pickedImage!.path));
-                    debugPrint("Performing text recognition...");
-                    await getEarTagNumber(File(pickedImage!.path));
+                    if(busy) return;
+                    busy = true;
+                    try {
+                      startLoading();
+                      debugPrint("Detecting muzzle...");
+                      await detectMuzzle(File(pickedImage!.path));
+                      debugPrint("Predicting health...");
+                      await predictHealth(File(pickedImage!.path));
+                      debugPrint("Performing text recognition...");
+                      await getEarTagNumber(File(pickedImage!.path));
+                      myReportData.add({'tag_number': '$recognizedText', 'status' : '$prediction'});
+                    } catch(e) {
+                      debugPrint("$e");
+                    }
+                    busy = false;
+                    stopLoading();
+
                   }
                   debugPrint("Please select an image first");
                 },),

@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 
-class ReportScreen extends StatelessWidget {
+class ReportScreen extends StatefulWidget {
   final List<Map<String, String>> reportData;
 
   ReportScreen({required this.reportData});
 
+  @override
+  State<ReportScreen> createState() => _ReportScreenState();
+}
+
+class _ReportScreenState extends State<ReportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,8 +21,17 @@ class ReportScreen extends StatelessWidget {
             Navigator.pop(context);
           },
         ),
+        actions: [
+          TextButton(
+              onPressed: () {
+                //clear report
+                widget.reportData.clear();
+                setState((){});
+              },
+              child: Text("clear", style: TextStyle(color: Colors.white)))
+        ],
       ),
-      body: SingleChildScrollView(
+      body:widget.reportData.isEmpty ? Center(child: Text("No data available")) : SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.all(10),
           child: Table(
@@ -34,7 +48,7 @@ class ReportScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              ...reportData.map((data) {
+              ...widget.reportData.map((data) {
                 return TableRow(
                   children: [
                     TableCell(
