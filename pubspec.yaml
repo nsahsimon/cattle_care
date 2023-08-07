@@ -42,8 +42,6 @@ dependencies:
   image: ^4.0.17
   path: ^1.8.2
   tflite_flutter: ^0.10.1
-  firebase_core: ^2.15.0
-  google_mlkit_text_recognition: ^0.10.0
 
 dev_dependencies:
   flutter_test:
