@@ -13,59 +13,7 @@ Future<File> convertYUVtoFile(CameraImage cameraImage) async{
   imgColorBytes(imgCamera, cameraImage);
 
   return await rotateImageBy90Degrees(imgCamera);
-  // Encode the image as JPG format
-  Uint8List jpg = imglib.encodeJpg(imgCamera);
-
-  // Create a temporary directory to store the image
-  Directory tempDir = Directory.systemTemp;
-  String tempPath = tempDir.path;
-
-  // Generate a unique filename with .jpg extension
-  String fileName = DateTime.now().millisecondsSinceEpoch.toString() + '.jpg';
-
-  // Save the image to the temporary directory
-  File imageFile = File('$tempPath/$fileName')..writeAsBytesSync(jpg);
-
-  return imageFile;
 }
-
-// void _imgColorBytes(imglib.Image imgCamera, CameraImage cameraImage) {
-//   for (int planeIndex = 0; planeIndex < cameraImage.planes.length; planeIndex++) {
-//     Plane plane = cameraImage.planes[planeIndex];
-//     Uint8List bytes = plane.bytes;
-//     int rowStride;
-//     int pixelStride;
-//     if(planeIndex == 0) { //for the y-plane
-//       rowStride = plane.bytesPerRow;
-//       pixelStride = 1;
-//     } else { //u and v planes
-//       rowStride = plane.bytesPerRow;
-//       pixelStride = 2;
-//     }
-//
-//     debugPrint("Plane $planeIndex data: bytes (${bytes.length}), bytes per row (${plane.bytesPerRow}), bytes per pixel (${plane.bytesPerPixel}), image width (${cameraImage.width}px), height (${cameraImage.height}px),");
-//
-//     for (int row = 0; row < cameraImage.height; row++) {
-//       for (int col = 0; col < cameraImage.width; col++) {
-//         int uvIndex = pixelStride * (col ~/ 2) + rowStride * (row ~/ 2);
-//         int index = row * cameraImage.width + col;
-//
-//         int yp = bytes[index];
-//         int up = bytes[uvIndex];
-//         int vp = bytes[uvIndex + 1];
-//
-//         int r = (yp + vp * 1436 / 1024 - 179).round().clamp(0, 255);
-//         int g = (yp - up * 46549 / 131072 + 44 - vp * 93604 / 131072 + 91).round().clamp(0, 255);
-//         int b = (yp + up * 1814 / 1024 - 227).round().clamp(0, 255);
-//
-//         Color color = Color.fromARGB(255, r, g, b);
-//         imgCamera.setPixel(col, row, imglib.ColorRgb8(r,g,b));
-//
-//
-//       }
-//     }
-//   }
-// }
 
 void imgColorBytes(imglib.Image imgCamera, CameraImage cameraImage) {
   try {
@@ -90,8 +38,7 @@ void imgColorBytes(imglib.Image imgCamera, CameraImage cameraImage) {
     int r = (yp + vp * 1436 / 1024 - 179).round().clamp(0, 255);
     int g = (yp - up * 46549 / 131072 + 44 -vp * 93604 / 131072 + 91).round().clamp(0, 255);
     int b = (yp + up * 1814 / 1024 - 227).round().clamp(0, 255);
-    // color: 0x FF  FF  FF  FF
-    //           A   B   G   R
+
     // img.data!.buffer.asUint8List()[index] = shift | (b << 16) | (g << 8) | r;
     Color color = Color.fromARGB(255, r, g, b);
     imgCamera.setPixel(x, y, imglib.ColorRgb8(r,g,b));
@@ -105,9 +52,6 @@ void imgColorBytes(imglib.Image imgCamera, CameraImage cameraImage) {
 
 
 Future<File> rotateImageBy90Degrees(imglib.Image image) async {
-  // // Read the image from the file.
-  // List<int> imageBytes = await imageFile.readAsBytes();
-  // imglib.Image originalImage = imglib.decodeImage(imageBytes as Uint8List)!;
 
   // Rotate the image by 90 degrees clockwise.
   imglib.Image rotatedImage = imglib.copyRotate(image, angle: 90);

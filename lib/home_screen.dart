@@ -89,8 +89,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-
   Future<File?> getImageFromGallery() async {
+    setState(() {
+      _isDetecting = false;
+      liveDetectionMode = false;
+    });
+
     final ImagePicker _picker = ImagePicker();
 
     try {
@@ -113,6 +117,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void takePhoto() async{
+    setState(() {
+      _isDetecting = false;
+      liveDetectionMode = false;
+    });
     final ImagePicker _picker = ImagePicker();
 
     try {
@@ -193,6 +201,8 @@ class _HomeScreenState extends State<HomeScreen> {
         imageStd: 255.0,
         numResultsPerClass: 1,
       );
+      // dynamic recognitionsTemp = await MLService().detectMuzzle(image.path);
+      recognitionsTemp = <dynamic>[];
       setState(() {
         _recognitions = recognitionsTemp;
         debugPrint('Detected ${_recognitions!.length} muzzles');
@@ -212,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
       debugPrint("Inference took ${endTime - startTime}ms");
 
       debugPrint("Closing tflite object");
-      debugPrint("tflite object succefully closed");
+      debugPrint("tflite object successfully closed");
     }
 
   Future predictHealth(File image) async {
@@ -278,6 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
           });
           var capturedImage = await compute(convertYUVtoFile,image ); //convertYUVtoFile(image);
           debugPrint("Running model");
+
           var recognitionsTemp = await Tflite.detectObjectOnImage(
             path: capturedImage.path,
             model: "YOLO",
@@ -286,6 +297,9 @@ class _HomeScreenState extends State<HomeScreen> {
             imageStd: 255.0,
             numResultsPerClass: 1,
           );
+
+          // dynamic recognitionsTemp = await MLService().detectMuzzle(capturedImage.path);
+          // dynamic recognitionsTemp = await compute( MLService().detectMuzzle, capturedImage.path);
 
           debugPrint("Finished running model");
 
@@ -320,9 +334,10 @@ class _HomeScreenState extends State<HomeScreen> {
             await predictHealth(File(capturedImage!.path));
             debugPrint("Performing text recognition...");
             await getEarTagNumber(File(capturedImage!.path));
-            myReportData.add({'tag_number': '$recognizedText', 'status' : '$prediction'});
+            myHealthReportData.add({'tag_number': '$recognizedText', 'status' : '$prediction'});
           }catch(e) {
             debugPrint("$e");
+            debugPrint("Failed to predict health status");
           }
           stopLoading();
 
@@ -353,7 +368,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return [];
     }
 
-    double factorX = container.width; //_imageWidth!;
+        double factorX = container.width; //_imageWidth!;
         double factorY = _imageHeight! / _imageWidth! * container.width; // _imageHeight!;
         Color blue = Color.fromRGBO(37, 213, 253, 1.0);
         debugPrint("Rendering boxes");
@@ -465,47 +480,45 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-
                 SizedBox(height: 10),
                 prediction == null || confidence == null ? Container(child:null) : Text("Tag number: $recognizedText, \nPrediction: $prediction, \vConfidence: ${confidence!.toStringAsFixed(2)}", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)),
                 Visibility(
                   visible: !liveDetectionMode,
                   child: RoundedButton(text: 'Live detection', color: Colors.red, onPressed: () {
-
                     startLiveDetection();
 
                   },),
                 ),
-                // RoundedButton(text: 'Take photo', color: Colors.red, onPressed: () {
-                //   takePhoto();
-                // },),
-                // RoundedButton(text: 'Choose Image', color: Colors.red, onPressed: () {
-                //   getImageFromGallery();
-                // },),
-                // RoundedButton(text: 'Predict', color: Colors.red, onPressed: () async{
-                //   if(pickedImage != null) {
-                //     if(busy) return;
-                //     busy = true;
-                //     try {
-                //       startLoading();
-                //       debugPrint("Detecting muzzle...");
-                //       await detectMuzzle(File(pickedImage!.path));
-                //       debugPrint("Predicting health...");
-                //       await predictHealth(File(pickedImage!.path));
-                //       debugPrint("Performing text recognition...");
-                //       await getEarTagNumber(File(pickedImage!.path));
-                //       myReportData.add({'tag_number': '$recognizedText', 'status' : '$prediction'});
-                //     } catch(e) {
-                //       debugPrint("$e");
-                //     }
-                //     busy = false;
-                //     stopLoading();
-                //
-                //   }
-                //   debugPrint("Please select an image first");
-                // },),
+                RoundedButton(text: 'Take photo', color: Colors.red, onPressed: () {
+                  takePhoto();
+                },),
+                RoundedButton(text: 'Choose Image', color: Colors.red, onPressed: () {
+                  getImageFromGallery();
+                },),
+                RoundedButton(text: 'Predict', color: Colors.red, onPressed: () async{
+                  if(pickedImage != null) {
+                    if(busy) return;
+                    busy = true;
+                    try {
+                      startLoading();
+                      debugPrint("Detecting muzzle...");
+                      await detectMuzzle(File(pickedImage!.path));
+                      debugPrint("Predicting health...");
+                      await predictHealth(File(pickedImage!.path));
+                      debugPrint("Performing text recognition...");
+                      await getEarTagNumber(File(pickedImage!.path));
+                      myHealthReportData.add({'tag_number': '$recognizedText', 'status' : '$prediction'});
+                    } catch(e) {
+                      debugPrint("$e");
+                    }
+                    busy = false;
+                    stopLoading();
+
+                  }
+                  debugPrint("Please select an image first");
+                },),
                 RoundedButton(text: 'View Report', color: Colors.red, onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ReportScreen(reportData: myReportData)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ReportScreen(reportData: myHealthReportData)));
                 },),
               ],
             ),
