@@ -183,6 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // useGpuDelegate: true,
     );
 
+
     FileImage(image)
         .resolve(new ImageConfiguration())
         .addListener(ImageStreamListener((ImageInfo info, bool _) {
@@ -202,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
         numResultsPerClass: 1,
       );
       // dynamic recognitionsTemp = await MLService().detectMuzzle(image.path);
-      recognitionsTemp = <dynamic>[];
+      // recognitionsTemp = <dynamic>[];
       setState(() {
         _recognitions = recognitionsTemp;
         debugPrint('Detected ${_recognitions!.length} muzzles');
